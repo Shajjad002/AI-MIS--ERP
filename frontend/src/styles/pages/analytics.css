@@ -19,6 +19,9 @@
 .analytics-page .donut::after { background: var(--ui-surface); border-radius: 50%; content: ''; height: 90px; position: absolute; width: 90px; }
 .analytics-page .donut strong { position: relative; z-index: 1; }
 .analytics-page .query-actions { margin-top: .85rem; }
+.report-source-tabs { border-bottom: 1px solid var(--ui-border); display: flex; gap: .5rem; margin-bottom: 1.25rem; }
+.report-source-tabs button { border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 8px 8px 0 0; color: var(--ui-muted) !important; padding: .75rem 1rem; }
+.report-source-tabs button.active { background: var(--ui-primary-soft) !important; border-bottom-color: var(--ui-primary) !important; color: var(--ui-text) !important; }
 
 @media (max-width: 760px) {
   .analytics-page .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -12,6 +12,8 @@ using AI.MIS.Infrastructure.Rag;
 using AI.MIS.Application.Menus;
 using AI.MIS.Infrastructure.Menus;
 using AI.MIS.Infrastructure.MISReport;
+using AI.MIS.Application.ExcelImports;
+using AI.MIS.Infrastructure.ExcelImports;
 using AI.MIS.Domain.Entities;
 
 namespace AI.MIS.Infrastructure;
@@ -37,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMISReportService, MISReportService>();
         services.AddScoped<IDayInformationService, DayInformationService>();
         services.AddScoped<IProgramService, ProgramService>();
+        services.AddScoped<IExcelImportStore, SqlExcelImportStore>();
         services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
         services.Configure<RagOptions>(configuration.GetSection(RagOptions.SectionName));
         services.AddSingleton<IDocumentStore, LocalDocumentStore>();

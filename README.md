@@ -89,6 +89,7 @@ Extracting a module into a microservice requires more than moving its folder. Ea
 
 - JWT login and role-based access for Administrators, MIS Analysts, and Branch Users.
 - MIS dashboard and reporting endpoints.
+- Authenticated Excel/CSV import saved to `AiMisErpCopilotDb` before reports are displayed, with selectable grouping and measures, graphical summaries, totals, and a worksheet preview. Imported workbooks are scoped to the signed-in user.
 - Natural-language question interpretation and guarded read-only SQL query execution.
 - PDF, DOCX, TXT, and Markdown upload, indexing, search, and cited answers using retrieval-augmented generation (RAG).
 - Menu and user access administration.
@@ -121,6 +122,8 @@ dotnet user-secrets set 'ConnectionStrings:MISDbConnection' '<read-only-reportin
 ```
 
 Apply the SQL scripts under `backend/database/Tables/` to the application database and run `backend/database/Seed/003_DemoUsers.sql` if you need the development seed users. Change any development passwords before using the application outside a local environment.
+
+Excel reporting requires `backend/database/Tables/006_ExcelImports.sql` to be applied to `AiMisErpCopilotDb`. After applying it and restarting the API, sign in, open **Visualization → Excel workbook**, and select an `.xlsx`, `.xls`, `.xlsm`, or `.csv` file. The API saves each import and its rows in one database transaction; the chart and table load from the saved report. Imports are visible only to the user who created them. The import limit is 20 MB, 20,000 data rows, and 100 columns.
 
 ### 2. Start the API
 
