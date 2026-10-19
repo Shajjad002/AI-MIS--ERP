@@ -1,0 +1,22 @@
+
+# Visual Studio
+.vs/
+*.csproj.user
+
+# .NET build output
+**/bin/
+**/obj/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+
+# Runtime logs
+*.log
+*.err.log
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example

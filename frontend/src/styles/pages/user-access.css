@@ -1,0 +1,16 @@
+.user-access-page h1 { font-size: clamp(2.2rem, 6vw, 4rem); }
+.user-access-page .admin-table { margin-top: 0; }
+.user-access-page .admin-table small { color: var(--ui-muted); display: block; margin-top: .3rem; }
+.user-access-page .status-active, .user-access-page .status-inactive { border-radius: 99px; display: inline-block; font-size: .78rem; padding: .3rem .6rem; }
+.user-access-page .status-active { background: #ecfdf3; color: #027a48; }
+.user-access-page .status-inactive { background: #fef3f2; color: #b42318; }
+.user-access-page .access-editor { display: grid; gap: 1rem; margin-top: 1rem; max-width: 650px; }
+.user-access-page .access-editor label { margin: 0; }
+.user-access-page .access-editor input, .user-access-page .access-editor select { display: block; margin-top: .45rem; width: 100%; }
+
+html[data-theme="dark"] .user-access-page .status-active { background: #164e63; color: #a5f3fc; }
+html[data-theme="dark"] .user-access-page .status-inactive { background: #482334; color: #fecdd3; }
+
+@media (max-width: 560px) {
+  .user-access-page .access-editor > button { width: 100%; }
+}

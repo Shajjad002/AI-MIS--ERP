@@ -1,0 +1,42 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, system-ui, sans-serif;
+  --ui-bg: #f8fafc;
+  --ui-surface: #fff;
+  --ui-subtle: #f2f4f7;
+  --ui-border: #e4e7ec;
+  --ui-text: #101828;
+  --ui-muted: #667085;
+  --ui-primary: #465fff;
+  --ui-primary-hover: #3641d9;
+  --ui-primary-soft: #eef2ff;
+  --ui-input: #fff;
+  --ui-shadow: 0 8px 24px rgb(16 24 40 / 10%);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ui-bg: #07111f;
+  --ui-surface: #10213a;
+  --ui-subtle: #09192d;
+  --ui-border: #23446e;
+  --ui-text: #e8eef9;
+  --ui-muted: #a9bad1;
+  --ui-primary: #67e8f9;
+  --ui-primary-hover: #a5f3fc;
+  --ui-primary-soft: #173250;
+  --ui-input: #09192d;
+  --ui-shadow: 0 8px 24px rgb(0 0 0 / 24%);
+}
+
+* { box-sizing: border-box; }
+html, body, #app { min-height: 100%; }
+html { min-width: 320px; }
+body { background: var(--ui-bg); color: var(--ui-text); font-size: 14px; margin: 0; min-width: 320px; overflow-x: hidden; }
+button, input, select, textarea { font: inherit; max-width: 100%; }
+button { border: 0; border-radius: 8px; cursor: pointer; font-weight: 700; min-height: 2.75rem; padding: .7rem 1.1rem; }
+button:disabled { cursor: wait; opacity: .65; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ui-primary) 48%, transparent);
+  outline-offset: 2px;
+}

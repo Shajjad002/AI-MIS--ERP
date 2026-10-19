@@ -1,0 +1,58 @@
+.menu-management-page h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+.menu-management-page .menu-security-note { margin: 0 0 1rem; padding: .8rem 1rem; border: 1px solid #b2ddff; border-radius: 12px; background: #eff8ff; color: #175cd3; font-size: .9rem; }
+.menu-management-page .menu-notice { margin: 0 0 1rem; color: #027a48; }
+.menu-management-page .menu-management-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); gap: 1rem; align-items: start; }
+.menu-management-page .menu-editor, .menu-management-page .menu-role-admin, .menu-management-page .menu-list-card { min-width: 0; }
+.menu-management-page .menu-list-card { grid-column: 1 / -1; }
+.menu-management-page .menu-form { display: grid; gap: 1rem; }
+.menu-management-page .menu-create-button { justify-self: start; width: 274px; max-width: 100%; height: 44px; min-height: 44px; }
+.menu-management-page .menu-form label, .menu-management-page .menu-user-assignment > label { display: grid; gap: .4rem; color: var(--ui-text); font-size: .88rem; font-weight: 600; }
+.menu-management-page .menu-form input:not([type="checkbox"]), .menu-management-page .menu-form select, .menu-management-page .menu-user-assignment select, .menu-management-page .menu-inline-form input { width: 100%; min-width: 0; }
+.menu-management-page .menu-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.menu-management-page .menu-checkbox { display: flex !important; align-items: center; gap: .55rem !important; font-weight: 500 !important; }
+.menu-management-page .menu-checkbox input { accent-color: #2457d6; }
+.menu-management-page .menu-checkbox small { margin-left: auto; color: var(--ui-muted); font-size: .72rem; }
+.menu-management-page .menu-role-picker { display: grid; gap: .7rem; min-width: 0; margin: 0; padding: .9rem; border: 1px solid var(--ui-border); border-radius: 12px; }
+.menu-management-page .menu-role-picker legend { padding: 0 .35rem; color: var(--ui-text); font-size: .85rem; font-weight: 700; }
+.menu-management-page .menu-help, .menu-management-page .menu-empty { color: var(--ui-muted); font-size: .85rem; }
+.menu-management-page .menu-inline-form { display: flex; gap: .55rem; }
+.menu-management-page .menu-role-create-button { flex: 0 0 140px; width: 140px; height: 44px; min-height: 44px; }
+.menu-management-page .menu-role-tags, .menu-management-page .menu-entry-roles { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
+.menu-management-page .menu-role-tags > span, .menu-management-page .menu-entry-roles > span { display: inline-flex; align-items: center; gap: .35rem; padding: .28rem .55rem; border-radius: 99px; background: var(--ui-surface-muted, #f2f4f7); color: var(--ui-text); font-size: .75rem; }
+.menu-management-page .menu-role-tags small { color: var(--ui-muted); }
+.menu-management-page .menu-user-assignment { display: grid; gap: .85rem; margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid var(--ui-border); }
+.menu-management-page .menu-user-save-button { justify-self: start; width: 180px; max-width: 100%; height: 44px; min-height: 44px; }
+.menu-management-page .menu-user-assignment h3, .menu-management-page .menu-entry-group h3 { margin: 0; font-size: 1rem; }
+.menu-management-page .menu-count { color: var(--ui-muted); font-size: .85rem; }
+.menu-management-page .menu-entry-group { margin-top: 1.25rem; }
+.menu-management-page .menu-entry-group h3 { margin-bottom: .6rem; color: var(--ui-muted); }
+.menu-management-page .menu-entry { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 0; border-top: 1px solid var(--ui-border); }
+.menu-management-page .menu-entry-details { min-width: 0; }
+.menu-management-page .menu-entry-details strong, .menu-management-page .menu-entry-details small { display: block; }
+.menu-management-page .menu-entry-details small { margin-top: .25rem; color: var(--ui-muted); }
+.menu-management-page .menu-entry-actions { display: flex; flex-shrink: 0; gap: .5rem; }
+.menu-management-page .menu-disabled-tag { margin-left: .4rem; padding: .2rem .4rem; border-radius: 99px; background: #fef3f2; color: #b42318; font-size: .68rem; font-weight: 600; }
+.menu-management-page .danger-button { border: 1px solid #fecdca; border-radius: 8px; padding: .5rem .7rem; background: #fff; color: #b42318; cursor: pointer; }
+.menu-management-page button:disabled { cursor: not-allowed; opacity: .65; }
+.menu-management-page .menu-loading { color: var(--ui-muted); }
+.menu-management-page .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.menu-load-warning { margin: 0 0 1rem; padding: .75rem 1rem; border: 1px solid #fedf89; border-radius: 10px; background: #fffaeb; color: #93370d; font-size: .88rem; }
+
+html[data-theme="dark"] .menu-management-page .menu-security-note { border-color: #1849a9; background: #102a56; color: #b2ddff; }
+html[data-theme="dark"] .menu-management-page .menu-notice { color: #75e0a7; }
+html[data-theme="dark"] .menu-management-page .menu-role-tags > span, html[data-theme="dark"] .menu-management-page .menu-entry-roles > span { background: #202b3b; }
+html[data-theme="dark"] .menu-management-page .menu-disabled-tag { background: #482334; color: #fecdd3; }
+html[data-theme="dark"] .menu-management-page .danger-button { border-color: #7a271a; background: #3b1d23; color: #fda29b; }
+html[data-theme="dark"] .menu-load-warning { border-color: #7a2e0e; background: #3b1d0e; color: #fedf89; }
+
+@media (max-width: 900px) {
+  .menu-management-page .menu-management-grid { grid-template-columns: 1fr; }
+  .menu-management-page .menu-list-card { grid-column: auto; }
+}
+@media (max-width: 560px) {
+  .menu-management-page .menu-form-row { grid-template-columns: 1fr; }
+  .menu-management-page .menu-inline-form, .menu-management-page .menu-entry { align-items: stretch; flex-direction: column; }
+  .menu-management-page .menu-inline-form > *, .menu-management-page .menu-entry-actions > * { width: 100%; }
+  .menu-management-page .menu-create-button, .menu-management-page .menu-user-save-button { width: 100%; }
+  .menu-management-page .menu-role-create-button { flex-basis: 100%; }
+}

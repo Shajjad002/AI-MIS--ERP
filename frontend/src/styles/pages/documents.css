@@ -1,0 +1,19 @@
+.documents-page h1 { font-size: clamp(2.2rem, 6vw, 4rem); }
+.documents-page .rag-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.5rem; }
+.documents-page .rag-card { display: grid; gap: 1rem; min-width: 0; }
+.documents-page .rag-card h2, .documents-page .rag-documents h2 { font-size: 1.2rem; }
+.documents-page .rag-card input[type="file"] { max-width: 100%; }
+.documents-page .rag-answer-text { color: var(--ui-text); font-size: 1.05rem; line-height: 1.7; white-space: pre-wrap; }
+.documents-page .citation-list { border-top: 1px solid var(--ui-border); margin-top: 1.25rem; padding-top: 1rem; }
+.documents-page .citation-list h3 { margin-bottom: .8rem; }
+.documents-page .citation { background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 8px; display: grid; gap: .35rem; margin-top: .65rem; padding: .85rem; }
+.documents-page .citation > span { color: var(--ui-primary); font-size: .85rem; }
+.documents-page .citation p { color: var(--ui-muted); line-height: 1.55; margin: .25rem 0 0; }
+.documents-page .rag-documents { margin-top: 1rem; }
+
+@media (max-width: 1000px) {
+  .documents-page .rag-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .documents-page .rag-card button { width: 100%; }
+}

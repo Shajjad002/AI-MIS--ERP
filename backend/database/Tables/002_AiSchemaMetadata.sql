@@ -1,0 +1,16 @@
+CREATE TABLE dbo.AISchemaMetadata (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    TableName NVARCHAR(128) NOT NULL,
+    TableDescription NVARCHAR(1000) NOT NULL,
+    IsApproved BIT NOT NULL CONSTRAINT DF_AISchemaMetadata_IsApproved DEFAULT 0,
+    CreatedAtUtc DATETIME2 NOT NULL CONSTRAINT DF_AISchemaMetadata_CreatedAtUtc DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE dbo.AISchemaColumnMetadata (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    SchemaMetadataId UNIQUEIDENTIFIER NOT NULL,
+    ColumnName NVARCHAR(128) NOT NULL,
+    ColumnDescription NVARCHAR(1000) NOT NULL,
+    DataType NVARCHAR(100) NOT NULL,
+    CONSTRAINT FK_AISchemaColumnMetadata_Schema FOREIGN KEY (SchemaMetadataId) REFERENCES dbo.AISchemaMetadata(Id)
+);

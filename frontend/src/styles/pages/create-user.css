@@ -1,0 +1,21 @@
+.create-user-page h1 { font-size: clamp(2.2rem, 6vw, 4rem); }
+.create-user-page .user-form { display: grid; gap: 1rem; margin-top: 1rem; max-width: 760px; }
+.create-user-page .user-form label { margin: 0; }
+.create-user-page .user-form input, .create-user-page .user-form select { display: block; margin-top: .45rem; width: 100%; }
+.create-user-page .profile-image-field { align-items: center; border-bottom: 1px solid var(--ui-border); display: flex; gap: 1rem; padding-bottom: 1rem; }
+.create-user-page .profile-image-preview { align-items: center; background: var(--ui-primary-soft); border: 1px solid var(--ui-border); border-radius: 50%; color: var(--ui-primary); display: flex; flex: 0 0 min(50%, 100px); height: 100px; justify-content: center; max-width: 100px; overflow: hidden; width: 50%; }
+.create-user-page .profile-image-preview img { height: 100%; object-fit: cover; width: 100%; }
+.create-user-page .profile-image-preview svg { height: 40px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; width: 40px; }
+.create-user-page .profile-image-controls h2 { font-size: 1rem; }
+.create-user-page .profile-image-controls .hint { margin: .3rem 0 .65rem; }
+.create-user-page .profile-image-actions { align-items: center; display: flex; flex-wrap: wrap; gap: .6rem; }
+.create-user-page .profile-image-choose { background: var(--ui-primary); border-radius: 8px; color: #fff; cursor: pointer; display: inline-flex; font-size: .9rem; font-weight: 700; margin: 0; min-height: 40px; padding: .65rem .9rem; }
+.create-user-page .profile-image-choose:hover { background: var(--ui-primary-hover); }
+.create-user-page .profile-image-actions .secondary-button { min-height: 40px; padding: .5rem .8rem; }
+.create-user-page .profile-image-input { display: none; }
+
+@media (max-width: 560px) {
+  .create-user-page .user-form button { width: 100%; }
+  .create-user-page .profile-image-field { align-items: flex-start; }
+  .create-user-page .profile-image-preview { flex-basis: min(50%, 100px); height: 100px; width: 50%; }
+}

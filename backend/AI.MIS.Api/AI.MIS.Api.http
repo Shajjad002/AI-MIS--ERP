@@ -1,0 +1,6 @@
+@AI.MIS.Api_HostAddress = http://localhost:5252
+
+GET {{AI.MIS.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>ai-mis-erp-copilot-api</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AI.MIS.Application\AI.MIS.Application.csproj" />
+    <ProjectReference Include="..\AI.MIS.Infrastructure\AI.MIS.Infrastructure.csproj" />
+    <ProjectReference Include="..\AI.MIS.Persistence\AI.MIS.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

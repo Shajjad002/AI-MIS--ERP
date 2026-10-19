@@ -1,0 +1,24 @@
+.login-page { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 1.5rem; }
+.login-page .login-card { background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 16px; box-shadow: var(--ui-shadow); color: var(--ui-text); max-width: 440px; padding: 2rem; width: 100%; }
+.login-page .login-card h1 { font-size: clamp(2rem, 7vw, 3.5rem); }
+.login-page .login-card .lede { color: var(--ui-muted); }
+.login-page form { display: grid; gap: .65rem; margin-top: 1.5rem; }
+.login-page form label { margin-bottom: 0; }
+.login-page form input { width: 100%; }
+.login-page .error { margin-top: 1rem; }
+
+
+.login-card form button {
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    min-height: 2.75rem;
+    padding: .7rem 1.1rem;
+    background: var(--ui-input);
+    border: 1px solid var(--ui-border);
+}
+@media (max-width: 560px) {
+  .login-page { padding: 1rem; }
+  .login-page .login-card { padding: 1.25rem; }
+}
