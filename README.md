@@ -1,189 +1,187 @@
 # AI MIS & ERP Copilot
 
-An enterprise-ready foundation for a read-only, natural-language MIS and ERP analytics copilot.
+A Vue web client and ASP.NET Core API for MIS and ERP reporting, analytics, and a read-only AI copilot.
 
-## Project layout
+## Architecture
+
+The repository is organized into separate frontend and backend applications. The backend currently runs as one deployable API with Clean Architecture layers. Its feature areas are modular, but they are **not independent microservices yet**.
+
+```mermaid
+flowchart LR
+    User[User browser] --> Web[Vue frontend<br/>frontend/]
+    Web -->|HTTPS / REST + JWT| Api[ASP.NET Core API<br/>AI.MIS.Api]
+
+    subgraph Backend[Current backend deployment]
+        Api --> Auth[Identity and access]
+        Api --> Reports[MIS reporting]
+        Api --> Copilot[Copilot query orchestration]
+        Api --> Knowledge[Document knowledge / RAG]
+        Api --> Menus[Menu administration]
+        Auth --> Layers[Application, Domain, Infrastructure, Persistence]
+        Reports --> Layers
+        Copilot --> Layers
+        Knowledge --> Layers
+        Menus --> Layers
+    end
+
+    Layers --> AppDb[(Application SQL database)]
+    Layers --> MisDb[(MIS / ERP reporting database)]
+    Copilot --> Llm[OpenAI-compatible LLM]
+    Knowledge --> Embeddings[Embedding provider]
+    Knowledge --> Vectors[(Private document and vector storage)]
+```
+
+### Proposed microservices architecture
+
+This is a possible target as the application grows. These services and the gateway are **not implemented or deployed separately yet**.
+
+```mermaid
+flowchart LR
+    User[User browser] --> Web[Vue frontend]
+    Web --> Gateway[API gateway]
+
+    Gateway --> Identity[Identity service]
+    Gateway --> Reporting[MIS reporting service]
+    Gateway --> Copilot[Copilot service]
+    Gateway --> Documents[Document knowledge service]
+    Gateway --> Admin[Administration service]
+
+    Identity --> IdentityDB[(Identity data)]
+    Reporting --> ReportDB[(Read-only MIS / ERP data)]
+    Copilot --> Reporting
+    Copilot --> LLM[LLM provider]
+    Documents --> Embedding[Embedding provider]
+    Documents --> DocStore[(Private document and vector storage)]
+    Admin --> AdminDB[(Menu and application data)]
+    Copilot -. audit events .-> Events[(Message broker / event stream)]
+    Documents -. indexing jobs .-> Events
+```
+
+In this target, each service would be independently deployable and own its data and configuration. Services would communicate through versioned HTTP APIs for synchronous operations and events for background work such as audit processing and document indexing. A gateway would provide a single frontend entry point and centralize routing and cross-cutting policies.
+
+### Current project structure
 
 ```text
-frontend/                 Vue 3 + TypeScript web client
+frontend/                         Vue 3 + TypeScript application
 backend/
-├── AI.MIS.Api/           ASP.NET Core HTTP API
-├── AI.MIS.Application/   Use cases and application contracts
-├── AI.MIS.Domain/        Business entities
-├── AI.MIS.Infrastructure/External services and data access
-├── AI.MIS.Persistence/   Database configuration
-└── database/             SQL schema and seed scripts
+├── AI.MIS.Api/                   HTTP API, authentication, and composition root
+├── AI.MIS.Application/           Use cases and application contracts
+├── AI.MIS.Domain/                Business entities
+├── AI.MIS.Infrastructure/        SQL, LLM, RAG, and other adapters
+├── AI.MIS.Persistence/           Persistence configuration
+└── database/                     SQL schema and seed scripts
+AI.MIS.Copilot.sln                .NET solution
 ```
 
-The frontend and backend are separate applications. The backend projects currently form one deployable API with Clean Architecture layers; they are not separate microservices yet.
+### Service boundaries for future extraction
 
-## Sprint 1 complete
+The API already groups functionality that can become separate services as deployment and scaling needs require:
 
-- Clean Architecture .NET solution (API, Application, Domain, Infrastructure, Persistence)
-- Vue 3 + TypeScript web starter
-- User, role, and branch-access domain/database foundations
-- Base API, CORS configuration, health/status endpoints, and JWT login
+- **Identity and access:** login, users, roles, and branch authorization.
+- **MIS reporting:** dashboard and report queries against the reporting database.
+- **Copilot:** natural-language interpretation, query validation, authorization, and audit logging.
+- **Document knowledge:** document upload, indexing, retrieval, and grounded answers.
+- **Menu administration:** menu catalog and user-specific visibility.
 
-Configure JWT signing with user secrets or environment variables. User credentials, roles, and branch access are read from the application database; store only PBKDF2 password hashes, never plaintext passwords:
+Extracting a module into a microservice requires more than moving its folder. Each service should have its own deployable host, stable API or event contract, configuration and health checks, and clearly owned data. Until that work is done, run and deploy the backend as the single API described below.
+
+## Features
+
+- JWT login and role-based access for Administrators, MIS Analysts, and Branch Users.
+- MIS dashboard and reporting endpoints.
+- Natural-language question interpretation and guarded read-only SQL query execution.
+- PDF, DOCX, TXT, and Markdown upload, indexing, search, and cited answers using retrieval-augmented generation (RAG).
+- Menu and user access administration.
+- Vue-based dashboard, visualization, document, and administration pages.
+
+## Requirements
+
+- .NET 9 SDK
+- Node.js and npm
+- SQL Server databases configured for the application and MIS reporting workloads
+
+## Run locally
+
+### 1. Configure the API
+
+Set secrets from the repository root. Use a secure, random JWT signing key of at least 32 characters and database credentials appropriate for your environment:
 
 ```powershell
-$env:Authentication__SigningKey = 'replace-with-at-least-32-random-characters'
+$env:Authentication__SigningKey = 'replace-with-a-random-key-of-at-least-32-characters'
 $env:ConnectionStrings__ApplicationDatabase = 'Server=...;Database=AiMisErpCopilotDb;Trusted_Connection=True;TrustServerCertificate=True;'
+$env:ConnectionStrings__MISDbConnection = 'Server=...;Database=...;Trusted_Connection=True;TrustServerCertificate=True;'
 ```
 
-Generate a compatible password hash locally without sending the password anywhere:
+Keep credentials out of source control. For local development, .NET User Secrets can hold configuration for the API project:
 
 ```powershell
-$password = Read-Host 'Admin password' -AsSecureString
-$plain = [System.Net.NetworkCredential]::new('', $password).Password
-$salt = [Security.Cryptography.RandomNumberGenerator]::GetBytes(16)
-$key = [Security.Cryptography.Rfc2898DeriveBytes]::Pbkdf2($plain, $salt, 100000, [Security.Cryptography.HashAlgorithmName]::SHA256, 32)
-"$([Convert]::ToBase64String($salt)).$([Convert]::ToBase64String($key))"
+dotnet user-secrets set 'Authentication:SigningKey' '<random-signing-key>' --project backend/AI.MIS.Api
+dotnet user-secrets set 'ConnectionStrings:ApplicationDatabase' '<application-database-connection-string>' --project backend/AI.MIS.Api
+dotnet user-secrets set 'ConnectionStrings:MISDbConnection' '<read-only-reporting-database-connection-string>' --project backend/AI.MIS.Api
 ```
 
-Run `backend/database/Seed/003_DemoUsers.sql` against `AiMisErpCopilotDb`, then call `POST /api/auth/login` with a seeded username and password to receive a JWT.
+Apply the SQL scripts under `backend/database/Tables/` to the application database and run `backend/database/Seed/003_DemoUsers.sql` if you need the development seed users. Change any development passwords before using the application outside a local environment.
 
-## Sprint 2 complete
+### 2. Start the API
 
-- Provider-neutral, OpenAI-compatible LLM client with a 30-second timeout
-- Controlled system prompt and JSON-only structured interpretation
-- Approved schema metadata provider and API endpoint
-- Initial schema metadata database tables
-- Interpretation endpoint that never executes its proposed SQL
-
-## Sprint 4 complete
-
-- Vue query form connected to `POST /api/copilot/query`
-- Loading and error states
-- KPI cards for row count and numeric totals
-- Responsive result table
-- Dependency-free bar, line, pie, and donut-friendly visualizations
-- Result summary with row count and numeric totals
-
-Visualization frontend structure:
-
-```text
-frontend/src/
-├── pages/VisualizationPage.vue
-├── components/visualization/
-│   ├── QueryComposer.vue
-│   ├── ResultChart.vue
-│   ├── ResultSummary.vue
-│   └── ResultTable.vue
-├── composables/useCopilotQuery.ts
-└── types/copilot.ts
-```
-
-Authentication frontend structure:
-
-```text
-frontend/src/
-├── pages/LoginPage.vue
-├── composables/useAuth.ts
-└── types/auth.ts
-```
-
-### Seeded development users
-
-```text
-admin / Admin@123
-mis.analyst / Mis@123
-branch.0212 / Branch@123
-```
-
-Change these development-only passwords before any deployment outside local development.
-
-## Sprint 5 complete
-
-- Fixed-window rate limiting on `POST /api/copilot/query` (20 requests/minute)
-- Structured query audit logging for success, clarification, rejection, and failure outcomes
-- Audit table schema for persisting query metadata without result rows
-- Database-backed JWT authentication with role and branch claims
-- JWT validation middleware and authorization on the query endpoint
-- Branch users must include authorized `BranchCode` equality predicates
-
-Branch-user queries are deliberately limited to a single table and must include an authorized `BranchCode` equality in every `OR` branch. Queries with joins or subqueries are rejected until branch scoping can be enforced independently of generated SQL.
-
-## Sprint 6 complete — RAG
-
-- Authenticated PDF, DOCX, TXT, and Markdown upload with bounded text extraction
-- Section/page-aware document chunking with configurable overlap
-- OpenAI-compatible batched embedding generation
-- Persistent local vector index with cosine similarity search
-- Retrieved business-rule and policy passages provided as untrusted context to the LLM
-- Grounded answers with server-generated document/page/section citations
-- Authenticated document management and RAG question UI
-- Admin/MIS Analyst-only document upload, listing, search, and ask endpoints
-
-Configure the embedding provider in user secrets or the deployment secret store. The API must also have the normal `Llm` chat-completions settings configured for grounded answers:
+From the repository root:
 
 ```powershell
-dotnet user-secrets set 'Rag:EmbeddingsEndpoint' 'https://api.openai.com/v1/embeddings' --project backend/AI.MIS.Api
-dotnet user-secrets set 'Rag:EmbeddingsApiKey' '<provider-key>' --project backend/AI.MIS.Api
-dotnet user-secrets set 'Rag:EmbeddingsModel' 'text-embedding-3-small' --project backend/AI.MIS.Api
+dotnet run --project backend/AI.MIS.Api/AI.MIS.Api.csproj
 ```
 
-Use the same embedding model and dimensions for indexing and querying. Changing embedding models requires reindexing documents. Documents are stored under `App_Data/documents`, including the local `vectors.json` index; configure `Rag:StoragePath` to a persistent private volume in deployment. Do not expose this directory as a static web directory.
+The command-line launch profile serves HTTP at `http://localhost:5252`. Visual Studio may use IIS Express at `https://localhost:44340`. Start the API again after changing backend code so the running process loads the updated build.
 
-RAG document endpoints:
+### 3. Configure and start the frontend
 
-```text
-GET  /api/documents
-POST /api/documents/upload (multipart form field: file)
-POST /api/documents/{documentId}/index
-POST /api/documents/search   { "query": "..." }
-POST /api/documents/ask      { "question": "..." }
-```
-
-Upload extracts and indexes the document before returning success. If embedding configuration or indexing fails, the file remains listed and can be retried through the index endpoint. Ask responses include citations generated from retrieved passages, not from free-form model citation claims.
-
-### Configure an LLM and read-only ERP database
-
-For local development, keep the OpenAI key in .NET User Secrets rather than in the web app or a checked-in settings file. From the repository root, set it using a secure PowerShell prompt:
-
-```powershell
-$secureKey = Read-Host 'OpenAI API key' -AsSecureString
-$apiKey = [System.Net.NetworkCredential]::new('', $secureKey).Password
-dotnet user-secrets set 'Llm:ApiKey' $apiKey --project backend/AI.MIS.Api
-Remove-Variable apiKey, secureKey
-dotnet user-secrets set 'Llm:Endpoint' 'https://api.openai.com/v1/chat/completions' --project backend/AI.MIS.Api
-dotnet user-secrets set 'Llm:Model' 'gpt-6-astra' --project backend/AI.MIS.Api
-```
-
-User Secrets are stored outside the repository and loaded automatically in Development, but are not encrypted; use them for local development only. Use your hosting platform's secret store in deployed environments. The API key is used only by the ASP.NET API. This configures the existing chat-completions client for `POST /api/copilot/interpret`; it does not create an Agents API session.
-
-For a local GPT4All API server, no API key is required:
-
-```powershell
-$env:Llm__Endpoint = 'http://localhost:4891/v1/chat/completions'
-$env:Llm__Model = 'Phi-3 Mini Instruct'
-$env:Llm__ApiKey = ''
-$env:ConnectionStrings__ErpReadOnlyDatabase = 'Server=...;Database=...;User Id=...;Password=...;Encrypt=True;'
-```
-
-Use `GET /api/schema-metadata` to inspect the only schema sent to the LLM. `POST /api/copilot/interpret` accepts `{ "question": "..." }`; it returns an interpretation and optional proposed SQL, but never executes it.
-Use `POST /api/copilot/query` with the same request to validate and execute a proposed query. The query must be one approved, read-only `SELECT` statement and execution is limited to 15 seconds by default. Configure a read-only database principal; application validation is defense in depth, not a replacement for database permissions.
-
-## Run the API
-
-For an existing application database, apply `backend/database/Tables/004_UserProfileImage.sql` before creating users with a profile image. The migration adds nullable image columns and is safe to run more than once. Create User accepts optional JPEG, PNG, or WebP profile images up to 5 MB; stored images are returned only from the authenticated profile-image endpoint.
-
-For menu administration, apply `backend/database/Tables/005_MenuManagement.sql` to the application database before using the menu endpoints or Menu management page. It creates the menu catalog, menu-role definitions, menu visibility grants, and per-user custom menu-role assignments, then seeds the initial navigation entries.
-
-Menu roles only determine which navigation entries are shown. They do not grant authorization to API endpoints: protected API access continues to use the existing Administrator, MIS Analyst, and Branch User JWT roles.
-
-```powershell
-dotnet run --project backend/AI.MIS.Api
-```
-
-## Run the web client
+From the repository root:
 
 ```powershell
 cd frontend
 npm.cmd install
-node node_modules/vite/bin/vite.js
+$env:VITE_API_URL = 'http://localhost:5252'
+node .\node_modules\vite\bin\vite.js
 ```
 
-The repository directory includes an `&`, which Windows' npm script wrapper treats as a command separator. Use the direct `node` command above while the project remains at this path.
+Set `VITE_API_URL` to the API address you are running. Vite reads it at startup, so restart the frontend after changing it. The default API URL in the client is `https://localhost:44340`.
 
-`ErpReadOnlyDatabase` is deliberately a placeholder. Do not set it to a write-enabled ERP connection.
+This repository path contains an ampersand (`&`). On Windows, npm command wrappers can misread paths containing it. If `npm.cmd run dev` fails, start Vite with the direct Node command shown above.
+
+## AI and document configuration
+
+Configure the OpenAI-compatible chat endpoint for interpretation and grounded answers using User Secrets or environment variables:
+
+```powershell
+dotnet user-secrets set 'Llm:Endpoint' 'https://api.openai.com/v1/chat/completions' --project backend/AI.MIS.Api
+dotnet user-secrets set 'Llm:ApiKey' '<provider-api-key>' --project backend/AI.MIS.Api
+dotnet user-secrets set 'Llm:Model' '<model-name>' --project backend/AI.MIS.Api
+```
+
+For document embeddings, configure an endpoint, key, and model. Use the same model and dimensions for indexing and querying; changing embedding models requires reindexing documents.
+
+```powershell
+dotnet user-secrets set 'Rag:EmbeddingsEndpoint' 'https://api.openai.com/v1/embeddings' --project backend/AI.MIS.Api
+dotnet user-secrets set 'Rag:EmbeddingsApiKey' '<provider-api-key>' --project backend/AI.MIS.Api
+dotnet user-secrets set 'Rag:EmbeddingsModel' '<embedding-model>' --project backend/AI.MIS.Api
+```
+
+Documents and the local vector index are stored under `App_Data/documents` by default. In a deployed environment, configure `Rag:StoragePath` to private persistent storage. Do not serve this directory as static web content.
+
+## API overview
+
+- `POST /api/auth/login` — authenticate and receive a JWT.
+- `GET /api/misReports` — load dashboard/report data.
+- `GET /api/schema-metadata` — inspect the approved schema metadata.
+- `POST /api/copilot/interpret` — interpret a question without executing proposed SQL.
+- `POST /api/copilot/query` — validate and execute an authorized read-only query.
+- `/api/documents` — list, upload, index, search, and ask questions about documents.
+- `/api/menus` and `/api/users` — menu and user administration.
+
+The copilot query endpoint accepts one approved read-only `SELECT` statement and applies a query timeout. Use a read-only database principal; application validation does not replace database permissions. Branch-user queries are restricted to authorized branch scopes.
+
+## Security notes
+
+- Store API keys, database credentials, and production JWT signing keys in a secret manager or environment configuration, never in the frontend or checked-in settings.
+- Use TLS for deployed traffic.
+- Keep document and vector storage private and persistent.
+- Review database permissions and role assignments before deployment.
