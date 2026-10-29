@@ -48,12 +48,12 @@ public class MISReportService : IMISReportService
               .Select(s => new BranchProtfolioSP
               {
                   //ProgramCode = s.FirstOrDefault().ProgramCode,
-                  ZoneCode = s.FirstOrDefault().ZoneCode,
-                  ZoneName = s.FirstOrDefault().ZoneName,
-                  RegionCode = s.FirstOrDefault().RegionCode,
-                  RegionName = s.FirstOrDefault().RegionName,
+                  ZoneCode = s.First().ZoneCode,
+                  ZoneName = s.First().ZoneName,
+                  RegionCode = s.First().RegionCode,
+                  RegionName = s.First().RegionName,
                   AreaCode = s.Key,
-                  AreaName = s.FirstOrDefault().AreaName,
+                  AreaName = s.First().AreaName,
                   NoOfCreditOfficer = s.Sum(s => s.NoOfCreditOfficer),
                   NoOfSMEOfficer = s.Sum(s => s.NoOfSMEOfficer),
                   NoOfCenter = s.Sum(s => s.NoOfCenter),
@@ -86,10 +86,10 @@ public class MISReportService : IMISReportService
               .Select(s => new BranchProtfolioSP
               {
                   //ProgramCode = s.FirstOrDefault().ProgramCode,
-                  ZoneCode = s.FirstOrDefault().ZoneCode,
-                  ZoneName = s.FirstOrDefault().ZoneName,
+                  ZoneCode = s.First().ZoneCode,
+                  ZoneName = s.First().ZoneName,
                   RegionCode = s.Key,
-                  RegionName = s.FirstOrDefault().RegionName,
+                  RegionName = s.First().RegionName,
 
                   NoOfCreditOfficer = s.Sum(s => s.NoOfCreditOfficer),
                   NoOfSMEOfficer = s.Sum(s => s.NoOfSMEOfficer),
@@ -122,7 +122,7 @@ public class MISReportService : IMISReportService
               .Select(s => new BranchProtfolioSP
               {
                   //ProgramCode = s.FirstOrDefault().ProgramCode,
-                  ZoneName = s.FirstOrDefault().ZoneName,
+                  ZoneName = s.First().ZoneName,
                   ZoneCode = s.Key,
 
                   NoOfCreditOfficer = s.Sum(s => s.NoOfCreditOfficer),
