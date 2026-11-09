@@ -16,14 +16,15 @@ input:focus, textarea:focus { outline-color: var(--ui-primary); }
 textarea { resize: vertical; width: 100%; }
 textarea::placeholder, input::placeholder { color: var(--ui-muted); }
 select { font: inherit; }
-.page-content button:not(.secondary-button):not(.nav-link):not(.icon-button):not(.profile-button):not(.search-results button):not(.profile-popover button) {
-  background: var(--ui-input);
-  border: 1px solid var(--ui-border);
+.page-content button:not(.secondary-button):not(.nav-link):not(.icon-button):not(.profile-button):not(.search-results button):not(.profile-popover button):not(.page-dashboard button) {
+  background: var(--ui-primary);
+  border: 1px solid var(--ui-primary);
   color: #fff;
 }
-.page-content button:not(.secondary-button):not(.nav-link):not(.icon-button):not(.profile-button):not(.search-results button):not(.profile-popover button):hover {
+.page-content button:not(.secondary-button):not(.nav-link):not(.icon-button):not(.profile-button):not(.search-results button):not(.profile-popover button):not(.page-dashboard button):hover {
   background: var(--ui-primary-hover);
-  color: #616161;
+  border-color: var(--ui-primary-hover);
+  color: #fff;
 }
 .secondary-button { background: transparent !important; border: 1px solid var(--ui-border); color: var(--ui-text) !important; }
 .secondary-button:hover { background: var(--ui-subtle) !important; }
