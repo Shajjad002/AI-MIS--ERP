@@ -1,17 +1,17 @@
 :root {
   color-scheme: light;
   font-family: Inter, system-ui, sans-serif;
-  --ui-bg: #f8fafc;
-  --ui-surface: #fff;
-  --ui-subtle: #f2f4f7;
-  --ui-border: #e4e7ec;
-  --ui-text: #101828;
-  --ui-muted: #667085;
-  --ui-primary: #465fff;
-  --ui-primary-hover: #3641d9;
-  --ui-primary-soft: #eef2ff;
-  --ui-input: #fff;
-  --ui-shadow: 0 8px 24px rgb(16 24 40 / 10%);
+  --ui-bg: #edf1f3;
+  --ui-surface: #f0f3f5;
+  --ui-subtle: #e9eef1;
+  --ui-border: #d7dfe3;
+  --ui-text: #202b35;
+  --ui-muted: #737f89;
+  --ui-primary: #2876dc;
+  --ui-primary-hover: #1e65c2;
+  --ui-primary-soft: #e7f1fb;
+  --ui-input: #edf1f3;
+  --ui-shadow: 8px 8px 18px #d0d7dc, -8px -8px 18px #fff;
 }
 
 html[data-theme="dark"] {

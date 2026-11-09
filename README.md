@@ -142,11 +142,10 @@ From the repository root:
 ```powershell
 cd frontend
 npm.cmd install
-$env:VITE_API_URL = 'http://localhost:5252'
 node .\node_modules\vite\bin\vite.js
 ```
 
-Set `VITE_API_URL` to the API address you are running. Vite reads it at startup, so restart the frontend after changing it. The default API URL in the client is `https://localhost:44340`.
+The development server proxies API requests to `http://localhost:5252`. To use another API address, set `VITE_API_URL` before starting Vite; it will be used for both the proxy target and browser requests.
 
 This repository path contains an ampersand (`&`). On Windows, npm command wrappers can misread paths containing it. If `npm.cmd run dev` fails, start Vite with the direct Node command shown above.
 
