@@ -9,5 +9,6 @@
 @import "./styles/pages/create-user.css";
 @import "./styles/pages/documents.css";
 @import "./styles/pages/menu-management.css";
+@import "./styles/pages/loan-analysis.css";
 @import "./styles/light-theme.css";
 @import "tailwindcss";

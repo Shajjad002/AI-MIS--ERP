@@ -4,11 +4,12 @@
 
 **Version:** 1.1\
 **Project Type:** AI-powered Enterprise MIS / ERP Assistant\
-**Architecture:** ASP.NET Core + Vue + SQL Server + LLM + RAG\
+**Current architecture:** Vue frontend + YARP gateway + Identity, Copilot, Knowledge, and Reporting API hosts\
+**Architecture status:** Initial microservice extraction; shared application/infrastructure libraries and databases remain transitional\
 **Primary Users:** Management, MIS, Finance, Operations, IT,
 Branch/Regional Users
 
-**Implementation status reviewed:** 2026-10-07
+**Implementation status reviewed:** 2026-11-14
 
 ## Current Implementation Status
 
@@ -19,13 +20,18 @@ available in the current application unless its status is marked
 
 | Sprint | Status | Current scope |
 | --- | --- | --- |
-| Sprint 1 — Foundation | Implemented | Clean Architecture solution, Vue application, database-backed JWT authentication, and user/branch access foundations. |
+| Sprint 1 — Foundation | Implemented | Vue client, JWT authentication, user/branch access foundations, and shared backend libraries used by the service hosts. |
 | Sprint 2 — AI Integration | Implemented | OpenAI-compatible LLM integration, structured interpretation, and controlled schema metadata. |
 | Sprint 3 — Text-to-SQL | Implemented | SQL proposal, validation, read-only execution, and branch-scope enforcement. |
 | Sprint 4 — Visualization | Implemented | Query UI, KPI/result summary, result table, and basic charts. |
 | Sprint 5 — Security | Implemented | JWT authorization, branch restrictions, audit logging, query timeout, and rate limiting. |
 | Sprint 6 — RAG | Implemented | Authenticated document indexing, local vector search, and grounded answers with citations. Provider credentials/configuration are required for live LLM and embedding calls. |
-| Sprint 7 — Reporting | Incomplete / planned | Saved reports, Excel/PDF export, and scheduled reports are not yet implemented. |
+| Sprint 7 — Reporting | Partially implemented | Authenticated Excel/CSV workbook import and saved, user-scoped analysis are implemented. Saved reusable reports, Excel/PDF export, and scheduled reports are not yet implemented. |
+| Service extraction | In progress | YARP gateway and four separately deployable API hosts are added. Service-owned persistence, independent infrastructure packages, and event-driven audit/indexing are not implemented yet. |
+
+The Reporting service also hosts the authenticated loan proposal summary
+endpoint. The current loan proposal page still uses explicitly labeled
+sample data and is not connected to that endpoint.
 
 The application also includes implemented administrator menu management:
 persisted menu entries, role-based menu visibility, custom menu-only
@@ -917,6 +923,44 @@ write operations shall require the Administrator system role.
 
 ------------------------------------------------------------------------
 
+### FR-020 Excel/CSV Workbook Import and Analysis
+
+**Status: Implemented**
+
+Authenticated users shall be able to import supported Excel and CSV
+workbooks for analysis. Imported workbook data shall be persisted to the
+application database before it is displayed, and each import shall be
+visible only to the user who created it. The current implementation
+supports `.xlsx`, `.xls`, `.xlsm`, and `.csv`, with limits of 20 MB,
+20,000 data rows, and 100 columns. The UI supports selectable grouping
+and measures, summaries, totals, and worksheet preview. The required
+`006_ExcelImports.sql` database script must be applied. This feature
+imports and analyzes data; it does not provide Excel/PDF report export.
+
+### FR-021 Loan Proposal Summary API and Analysis Prototype
+
+**Status: API implemented; analysis page uses sample data**
+
+The authenticated API shall provide a filtered loan proposal summary
+using proposal and probable-disbursement date ranges, proposal status,
+member, center, loan product, organizational codes, approver role,
+installment type, member rank, branch-level selection, and proposed
+amount scope where supported by the service. If an eligible non-branch
+user requests a date range greater than 45 days without selecting
+branch-level or proposed-amount scope, the API returns a validation
+message. When organizational filters are omitted, the API derives scope
+from the authenticated user's workstation assignments. A successful
+response uses the standard `BaseResponse` envelope.
+
+The Vue loan proposal analysis page is currently a prototype: its visible
+proposal rows, statuses, requested amounts, and risk scores are static
+sample data. It must not be treated as connected to the proposal API or
+used for operational or credit decisions until that integration and
+business validation are completed. Risk bands shown in the prototype
+are illustrative only.
+
+------------------------------------------------------------------------
+
 # 11. RAG Architecture
 
 ``` text
@@ -1086,57 +1130,104 @@ the current implementation.
 
 ------------------------------------------------------------------------
 
-# 14. Proposed Solution Architecture
+# 14. Microservice Architecture
 
-``` text
-AI-MIS-Copilot
-|
-+-- src/
-|   |
-|   +-- AI.MIS.Api/
-|   |   +-- Controllers/
-|   |   +-- Middleware/
-|   |   +-- Filters/
-|   |   +-- Program.cs
-|   |
-|   +-- AI.MIS.Application/
-|   |   +-- Copilot/
-|   |   +-- Reports/
-|   |   +-- Users/
-|   |   +-- Common/
-|   |
-|   +-- AI.MIS.Domain/
-|   |   +-- Entities/
-|   |   +-- Enums/
-|   |   +-- Interfaces/
-|   |
-|   +-- AI.MIS.Infrastructure/
-|   |   +-- AI/
-|   |   +-- Database/
-|   |   +-- Security/
-|   |   +-- RAG/
-|   |
-|   +-- AI.MIS.Persistence/
-|   |
-|   +-- AI.MIS.Web/
-|       +-- components/
-|       +-- views/
-|       +-- services/
-|
-+-- database/
-|   +-- Tables/
-|   +-- Procedures/
-|   +-- Views/
-|   +-- Seed/
-|
-+-- docs/
-|   +-- BA.md
-|   +-- SRS.md
-|   +-- Architecture.md
-|   +-- API.md
-|
-+-- README.md
+## 14.1 Current Deployment
+
+The backend now includes a YARP gateway and four ASP.NET Core service
+hosts. The original `AI.MIS.Api` remains as a compatibility host. Service
+hosts select their own controller sets and register feature-specific
+dependencies. They still reference shared Application and Infrastructure
+assemblies, and Identity and Reporting still use the shared application
+database; this is an incremental extraction, not complete data ownership
+or bounded-context isolation.
+
+## 14.2 Current Service Hosts and Data Flow
+
+The diagram below shows the current deployment split and its shared
+transitional dependencies. The API hosts can run and deploy separately;
+service-owned data stores and asynchronous messaging remain future work.
+
+```mermaid
+flowchart LR
+    User[User browser] --> Web[Vue frontend]
+    Web -->|HTTPS / REST| Gateway[API gateway]
+
+    Gateway --> Identity[Identity and access service]
+    Gateway --> Reporting[MIS reporting service]
+    Gateway --> Copilot[AI copilot service]
+    Gateway --> Knowledge[Document knowledge service]
+    Identity --> AppDB[(Shared application database)]
+    Reporting --> AppDB
+    Reporting --> ReportDB[(MIS / ERP reporting database)]
+    Copilot --> ERPDB[(Read-only ERP database)]
+    Copilot --> LLM[LLM provider]
+    Knowledge --> Embeddings[Embedding provider]
+    Knowledge --> DocStore[(Local persistent document and vector files)]
 ```
+
+## 14.3 Service Responsibilities
+
+| Service | Responsibilities | Data boundary |
+| --- | --- | --- |
+| API gateway | YARP frontend entry point; route requests and apply CORS, JWT validation, and gateway request limits. | No business data ownership. |
+| Identity and access | Authentication, user and role administration, and menu visibility. | Uses the shared application database during migration. |
+| MIS reporting | Dashboard/report endpoints, Excel import, and loan proposal summary. | Uses the shared application database and configured MIS/ERP SQL connection. |
+| AI copilot | Intent interpretation, SQL proposal and validation, authorized query execution, and query logging. | Uses configured ERP read-only SQL connection; audit currently writes through the application logger. |
+| Document knowledge | Document lifecycle, parsing, chunking, embedding, retrieval, and citations. | Uses local persistent document and vector files; not safe for multi-replica scaling without shared storage. |
+
+The current services are separate web hosts but still compile against
+shared Application and Infrastructure assemblies. Identity and
+Reporting use the same application database, and Knowledge uses local
+file persistence. Service-owned databases, versioned service-to-service
+contracts, and asynchronous events are required migration work before
+the target isolation model is complete. ERP/MIS remains authoritative;
+reporting/query connections must use least-privilege read-only access.
+
+## 14.4 Cross-Cutting Requirements
+
+- Validate user identity and authorization at the receiving service; the
+  gateway is not the sole authorization boundary.
+- Propagate user identity and authorized branch/region scope through
+  service calls. Each data-owning service must enforce its own scope.
+- Use TLS for network traffic and a managed secret store for credentials
+  and provider keys.
+- Apply request timeouts, cancellation, bounded retries for transient
+  failures, and circuit breaking where appropriate. Do not retry
+  non-idempotent operations unless they have an idempotency mechanism.
+- Include correlation and trace identifiers in API responses, logs, and
+  asynchronous events. Record security and query audit events without
+  unnecessarily copying sensitive result data.
+- Define health/readiness checks, service-level metrics, structured logs,
+  and deployment configuration per service.
+- Version HTTP and event contracts. Use idempotent consumers and a
+  documented dead-letter/replay process for asynchronous work.
+- Prefer service-owned persistence boundaries. Where temporary shared
+  database infrastructure is unavoidable during migration, enforce
+  schema ownership and prohibit cross-domain writes.
+
+## 14.5 Incremental Migration Approach
+
+1. Keep `AI.MIS.Api` as a compatibility host while the frontend routes
+   through the YARP gateway to the new service hosts.
+2. The Identity, Copilot, Knowledge, and Reporting hosts have been
+   extracted with controller filtering and feature-specific dependency
+   registration.
+3. Move controller and domain contracts out of the shared HTTP/API
+   assembly, then give each service its own data schema and migration
+   lifecycle.
+4. Replace local file-based vector persistence with a durable shared
+   store before running multiple Knowledge replicas.
+5. Add versioned cross-service APIs and broker-backed audit/indexing
+   workflows with retries, idempotency, and failure recovery.
+6. Complete the Loan Analytics service boundary and connect the Vue
+   analysis page to live data while preserving JWT-based branch scope.
+
+The service hosts are deployable separately, but their shared code
+assemblies and persistence mean the migration is not complete. Each
+next extraction should reduce shared domain coupling, assign data
+ownership, define stable contracts, and preserve an independent
+rollback path.
 
 ------------------------------------------------------------------------
 
@@ -1465,6 +1556,9 @@ capability is complete):
 [✓] Administrator menu management and menu-only visibility roles
 [ ] Conversation/query history UI
 [ ] User feedback collection
+[✓] Authenticated Excel/CSV workbook import and user-scoped analysis
+[✓] Authenticated loan proposal summary API with workstation scope
+[~] Loan proposal analysis page (sample-data prototype; API integration pending)
 ```
 
 ------------------------------------------------------------------------
@@ -1498,7 +1592,7 @@ capability is complete):
 # 25. Development Roadmap
 
 Sprint status reflects implementation in the current codebase as of
-2026-10-07. It is not a statement of production readiness or formal
+2026-11-14. It is not a statement of production readiness or formal
 stakeholder sign-off.
 
 ## Sprint 1 --- Foundation — Implemented
@@ -1546,12 +1640,17 @@ stakeholder sign-off.
 -   Vector search
 -   Business-rule retrieval
 
-## Sprint 7 --- Reporting — Incomplete / Planned
+## Sprint 7 --- Reporting — Partially Implemented
 
+-   Authenticated Excel/CSV workbook import and user-scoped analysis — implemented
 -   Excel export
 -   PDF export
 -   Saved reports
 -   Scheduled reports
+
+Loan proposal analysis is an additional workstream: the authenticated
+summary API is implemented, while its frontend analysis page still uses
+sample data and requires API integration before operational use.
 
 Menu administration is implemented alongside these sprints: menu
 catalog maintenance, system-role visibility grants, custom menu-only
@@ -1691,6 +1790,9 @@ formal business acceptance:
 13. **Not implemented:** Persistent conversation/query history for users.
 14. **Not implemented:** Saved reports, report exports, and scheduled reports.
 15. **Requires deployment validation:** Production provider configuration, deployment security, performance targets, and formal acceptance.
+16. **Implemented:** An authenticated user can import a supported Excel/CSV workbook and view analysis saved for that user, subject to documented size and row/column limits.
+17. **Implemented:** The authenticated loan proposal summary API derives default organizational scope from the user's workstation assignments and returns filtered proposal data.
+18. **Prototype only:** The loan proposal analysis page displays sample records; it is not yet connected to the API and its risk indicators are illustrative.
 
 ------------------------------------------------------------------------
 

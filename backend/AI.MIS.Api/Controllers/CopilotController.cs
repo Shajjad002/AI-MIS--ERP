@@ -1,5 +1,6 @@
 using AI.MIS.Application.Copilot;
 using AI.MIS.Application.Copilot.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 

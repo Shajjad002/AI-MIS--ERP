@@ -9,4 +9,5 @@ public enum MISSPEnum
     USP_Portfolio_PreviousMonth,
     USP_Portfolio,
     USP_GetWorkstationDayStatus,
+    USP_GetLoanProposalSearchList,
 }

@@ -1,89 +1,63 @@
 # AI MIS & ERP Copilot
 
-A Vue web client and ASP.NET Core API for MIS and ERP reporting, analytics, and a read-only AI copilot.
+A Vue web client, YARP gateway, and independently deployable ASP.NET Core service hosts for MIS and ERP reporting, analytics, and a read-only AI copilot.
 
-## Architecture
+## Microservice Architecture
 
-The repository is organized into separate frontend and backend applications. The backend currently runs as one deployable API with Clean Architecture layers. Its feature areas are modular, but they are **not independent microservices yet**.
-
-```mermaid
-flowchart LR
-    User[User browser] --> Web[Vue frontend<br/>frontend/]
-    Web -->|HTTPS / REST + JWT| Api[ASP.NET Core API<br/>AI.MIS.Api]
-
-    subgraph Backend[Current backend deployment]
-        Api --> Auth[Identity and access]
-        Api --> Reports[MIS reporting]
-        Api --> Copilot[Copilot query orchestration]
-        Api --> Knowledge[Document knowledge / RAG]
-        Api --> Menus[Menu administration]
-        Auth --> Layers[Application, Domain, Infrastructure, Persistence]
-        Reports --> Layers
-        Copilot --> Layers
-        Knowledge --> Layers
-        Menus --> Layers
-    end
-
-    Layers --> AppDb[(Application SQL database)]
-    Layers --> MisDb[(MIS / ERP reporting database)]
-    Copilot --> Llm[OpenAI-compatible LLM]
-    Knowledge --> Embeddings[Embedding provider]
-    Knowledge --> Vectors[(Private document and vector storage)]
-```
-
-### Proposed microservices architecture
-
-This is a possible target as the application grows. These services and the gateway are **not implemented or deployed separately yet**.
+The backend is being split into independently deployable ASP.NET Core API hosts. The Vue application calls the YARP gateway, which routes each feature path to its owning service. Clean Architecture projects remain shared implementation libraries during this migration; they are not service hosts.
 
 ```mermaid
 flowchart LR
     User[User browser] --> Web[Vue frontend]
-    Web --> Gateway[API gateway]
+    Web -->|HTTPS / REST| Gateway[YARP gateway<br/>AI.MIS.Gateway]
 
-    Gateway --> Identity[Identity service]
-    Gateway --> Reporting[MIS reporting service]
-    Gateway --> Copilot[Copilot service]
-    Gateway --> Documents[Document knowledge service]
-    Gateway --> Admin[Administration service]
+    Gateway --> Identity[Identity service<br/>auth, users, menus]
+    Gateway --> Copilot[Copilot service<br/>interpretation, SQL guard]
+    Gateway --> Knowledge[Knowledge service<br/>documents and RAG]
+    Gateway --> Reporting[Reporting service<br/>MIS reports, imports, loan proposals]
 
-    Identity --> IdentityDB[(Identity data)]
-    Reporting --> ReportDB[(Read-only MIS / ERP data)]
-    Copilot --> Reporting
-    Copilot --> LLM[LLM provider]
-    Documents --> Embedding[Embedding provider]
-    Documents --> DocStore[(Private document and vector storage)]
-    Admin --> AdminDB[(Menu and application data)]
-    Copilot -. audit events .-> Events[(Message broker / event stream)]
-    Documents -. indexing jobs .-> Events
+    Identity --> SharedAppDB[(Current shared application database)]
+    Reporting --> SharedAppDB
+    Reporting --> ERP[(MIS / ERP database)]
+    Copilot --> ERP
+    Copilot --> LLM[OpenAI-compatible LLM]
+    Knowledge --> Embeddings[Embedding provider]
+    Knowledge --> DocStore[(Private document and local vector storage)]
 ```
 
-In this target, each service would be independently deployable and own its data and configuration. Services would communicate through versioned HTTP APIs for synchronous operations and events for background work such as audit processing and document indexing. A gateway would provide a single frontend entry point and centralize routing and cross-cutting policies.
+### What is deployed separately
 
-### Current project structure
+- `AI.MIS.Gateway` routes `/api/auth`, `/api/users`, and `/api/menus` to Identity; `/api/copilot` and `/api/schema-metadata` to Copilot; `/api/documents` to Knowledge; and reporting, Excel import, and loan proposal routes to Reporting.
+- `AI.MIS.IdentityService` hosts authentication, user management, and menu administration.
+- `AI.MIS.CopilotService` hosts natural-language interpretation and guarded query execution.
+- `AI.MIS.KnowledgeService` hosts document upload, indexing, retrieval, and cited answers.
+- `AI.MIS.ReportingService` hosts MIS reports, Excel/CSV imports, and the loan proposal API.
+
+Each API service validates JWTs independently. The gateway also validates supplied JWTs, applies a gateway-level request limit, and routes requests. The previous `AI.MIS.Api` host remains available for compatibility and local troubleshooting; the Vue development proxy now targets the gateway at `http://localhost:8080` by default.
+
+### Migration status and current limits
+
+The service hosts currently share the `AI.MIS.Application` and `AI.MIS.Infrastructure` code libraries. Identity and reporting still use the same application database, MIS reporting and Copilot use configured ERP/MIS SQL connections, and Knowledge stores its document/vector index in local persistent files. This is an initial independently deployable service split, not yet full service-owned data isolation. There is no message broker/AuditService, SQL vector store, or automated per-service database migration in this implementation.
+
+### Project layout
 
 ```text
 frontend/                         Vue 3 + TypeScript application
 backend/
-├── AI.MIS.Api/                   HTTP API, authentication, and composition root
-├── AI.MIS.Application/           Use cases and application contracts
-├── AI.MIS.Domain/                Business entities
-├── AI.MIS.Infrastructure/        SQL, LLM, RAG, and other adapters
-├── AI.MIS.Persistence/           Persistence configuration
-└── database/                     SQL schema and seed scripts
-AI.MIS.Copilot.sln                .NET solution
+├── AI.MIS.Gateway/               YARP reverse proxy and route configuration
+├── AI.MIS.IdentityService/       Authentication, users, and menus host
+├── AI.MIS.CopilotService/        Copilot query host
+├── AI.MIS.KnowledgeService/      Document/RAG host
+├── AI.MIS.ReportingService/      Reporting, imports, and loan proposal host
+├── AI.MIS.HttpApi/               Shared controller assembly during extraction
+├── AI.MIS.ServiceDefaults/       JWT, rate limit, health, and controller filtering
+├── AI.MIS.Api/                   Compatibility host
+├── AI.MIS.Application/           Shared use cases/contracts during extraction
+├── AI.MIS.Domain/                Shared domain types during extraction
+├── AI.MIS.Infrastructure/        Shared adapters during extraction
+└── deploy/                       Docker Compose and service container build
+AI.MIS.Copilot.sln
 ```
-
-### Service boundaries for future extraction
-
-The API already groups functionality that can become separate services as deployment and scaling needs require:
-
-- **Identity and access:** login, users, roles, and branch authorization.
-- **MIS reporting:** dashboard and report queries against the reporting database.
-- **Copilot:** natural-language interpretation, query validation, authorization, and audit logging.
-- **Document knowledge:** document upload, indexing, retrieval, and grounded answers.
-- **Menu administration:** menu catalog and user-specific visibility.
-
-Extracting a module into a microservice requires more than moving its folder. Each service should have its own deployable host, stable API or event contract, configuration and health checks, and clearly owned data. Until that work is done, run and deploy the backend as the single API described below.
 
 ## Features
 
@@ -94,6 +68,31 @@ Extracting a module into a microservice requires more than moving its folder. Ea
 - PDF, DOCX, TXT, and Markdown upload, indexing, search, and cited answers using retrieval-augmented generation (RAG).
 - Menu and user access administration.
 - Vue-based dashboard, visualization, document, and administration pages.
+
+## Run the microservice stack
+
+Create a `.env` file in the repository root with deployment-specific values (do not commit secrets):
+
+```dotenv
+AUTHENTICATION_SIGNING_KEY=replace-with-a-random-key-at-least-32-characters
+APPLICATION_DATABASE_CONNECTION_STRING=Server=...;Database=AiMisErpCopilotDb;...
+ERP_READ_ONLY_DATABASE_CONNECTION_STRING=Server=...;Database=...;...
+MIS_DATABASE_CONNECTION_STRING=Server=...;Database=...;...
+LLM_ENDPOINT=https://api.openai.com/v1/chat/completions
+LLM_API_KEY=replace-with-provider-key
+LLM_MODEL=replace-with-model-name
+EMBEDDINGS_ENDPOINT=https://api.openai.com/v1/embeddings
+EMBEDDINGS_API_KEY=replace-with-provider-key
+EMBEDDINGS_MODEL=replace-with-embedding-model
+```
+
+Start the gateway and API services from the repository root:
+
+```powershell
+docker compose --env-file .env -f backend/deploy/docker-compose.yml up --build
+```
+
+The gateway listens on `http://localhost:8080`; point the frontend at that URL for local development. The application database must already contain the tables required by the Identity and Reporting features, including `backend/database/Tables/006_ExcelImports.sql`.
 
 ## Requirements
 
@@ -125,15 +124,15 @@ Apply the SQL scripts under `backend/database/Tables/` to the application databa
 
 Excel reporting requires `backend/database/Tables/006_ExcelImports.sql` to be applied to `AiMisErpCopilotDb`. After applying it and restarting the API, sign in, open **Visualization → Excel workbook**, and select an `.xlsx`, `.xls`, `.xlsm`, or `.csv` file. The API saves each import and its rows in one database transaction; the chart and table load from the saved report. Imports are visible only to the user who created them. The import limit is 20 MB, 20,000 data rows, and 100 columns.
 
-### 2. Start the API
+### 2. Start the microservice stack
 
-From the repository root:
+Use the Docker Compose command in **Run the microservice stack** above. It starts the gateway on port `8080` and the service hosts on the internal Docker network. If you need to run the compatibility API host directly instead, start it with:
 
 ```powershell
 dotnet run --project backend/AI.MIS.Api/AI.MIS.Api.csproj
 ```
 
-The command-line launch profile serves HTTP at `http://localhost:5252`. Visual Studio may use IIS Express at `https://localhost:44340`. Start the API again after changing backend code so the running process loads the updated build.
+The compatibility host serves HTTP at `http://localhost:5252` and is not the gateway. To use it from the frontend, set `VITE_API_URL=http://localhost:5252`. Visual Studio may use IIS Express at `https://localhost:44340`.
 
 ### 3. Configure and start the frontend
 
@@ -145,7 +144,7 @@ npm.cmd install
 node .\node_modules\vite\bin\vite.js
 ```
 
-The development server proxies API requests to `http://localhost:5252`. To use another API address, set `VITE_API_URL` before starting Vite; it will be used for both the proxy target and browser requests.
+When `VITE_API_URL` is unset, the development server proxies API requests to the gateway at `http://localhost:8080`. Set `VITE_API_URL` only when intentionally targeting another API address; it will be used for both the proxy target and browser requests.
 
 This repository path contains an ampersand (`&`). On Windows, npm command wrappers can misread paths containing it. If `npm.cmd run dev` fails, start Vite with the direct Node command shown above.
 

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\**\*.cs" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
   </ItemGroup>
@@ -16,6 +17,7 @@
     <ProjectReference Include="..\AI.MIS.Application\AI.MIS.Application.csproj" />
     <ProjectReference Include="..\AI.MIS.Infrastructure\AI.MIS.Infrastructure.csproj" />
     <ProjectReference Include="..\AI.MIS.Persistence\AI.MIS.Persistence.csproj" />
+    <ProjectReference Include="..\AI.MIS.HttpApi\AI.MIS.HttpApi.csproj" />
   </ItemGroup>
 
 </Project>

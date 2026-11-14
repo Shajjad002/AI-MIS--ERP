@@ -7,11 +7,12 @@ import UserAccessPage from './pages/UserAccessPage.vue'
 import CreateUserPage from './pages/CreateUserPage.vue'
 import DocumentsPage from './pages/DocumentsPage.vue'
 import MenuManagementPage from './pages/MenuManagementPage.vue'
+import LoanProposalAnalysisPage from './pages/LoanProposalAnalysisPage.vue'
 import { useAuth } from './composables/useAuth'
 import { apiFetch } from './config/api'
 import type { MenuItem, MenuPageKey } from './types/menu'
 
-type Page = 'home' | 'visualization' | 'users' | 'create-user' | 'documents' | 'menus'
+type Page = 'home' | 'visualization' | 'loan-analysis' | 'users' | 'create-user' | 'documents' | 'menus'
 type NavigationPage = Exclude<Page, 'create-user'>
 type NavigationIcon = 'overview' | 'dashboard' | 'report' | 'explore' | 'cohorts' | 'studio' | 'anomaly' | 'forecast' | 'recommendation' | 'ask' | 'source' | 'model' | 'quality' | 'governance' | 'alert' | 'metric' | 'settings' | 'users'
 type NavigationItem = { page: NavigationPage; label: string; icon: NavigationIcon; badge?: string; primary?: boolean; menuId?: string }
@@ -68,10 +69,17 @@ const navigationGroups = computed<NavigationGroup[]>(() => {
     items.push({ page: 'menus', label: 'Menu management', icon: 'settings' })
     groups.set('Configuration', items)
   }
-  return [...groups.entries()].map(([label, items]) => ({
+  const result = [...groups.entries()].map(([label, items]) => ({
     label,
     items: items.filter(item => !(item.page === 'home' && item.label === 'Overview')),
   }))
+  const analyticsGroup = result.find(group => group.label === 'Analytics')
+  if (analyticsGroup) {
+    analyticsGroup.items.push({ page: 'loan-analysis', label: 'Loan proposal analysis', icon: 'metric' })
+  } else {
+    result.push({ label: 'Analytics', items: [{ page: 'loan-analysis', label: 'Loan proposal analysis', icon: 'metric' }] })
+  }
+  return result
 })
 const primaryNavigation = computed<NavigationItem | undefined>(() => {
   const menu = navigationSource.value.find(item => item.isEnabled && item.pageKey === 'home' && item.label === 'Overview')
@@ -95,6 +103,7 @@ const searchResults = computed(() => {
 const pageTitle = computed(() => ({
   home: 'Overview',
   visualization: 'Reports',
+  'loan-analysis': 'Loan Proposal & Assessment Analysis',
   users: 'User access',
   menus: 'Menu management',
   'create-user': 'Create user',
@@ -105,6 +114,7 @@ const activeNavigationLabel = computed(() => {
   if (selectedNavigationLabel.value) return selectedNavigationLabel.value
   if (currentPage.value === 'home') return 'Overview'
   if (currentPage.value === 'visualization') return 'Reports'
+  if (currentPage.value === 'loan-analysis') return 'Loan proposal analysis'
   if (currentPage.value === 'documents') return 'Sources'
   if (currentPage.value === 'users' || currentPage.value === 'create-user') return 'User access'
   if (currentPage.value === 'menus') return 'Menu management'
@@ -418,6 +428,7 @@ function selectFirstSearchResult() {
         <p v-if="menuLoadError" class="menu-load-warning" role="status">{{ menuLoadError }} Showing the default role-based navigation until the menu service is available.</p>
         <HomePage v-if="currentPage === 'home'" :user-name="userName" @open-visualization="navigate('visualization')" />
         <VisualizationPage v-else-if="currentPage === 'visualization'" />
+        <LoanProposalAnalysisPage v-else-if="currentPage === 'loan-analysis'" />
         <UserAccessPage v-else-if="currentPage === 'users'" @create-user="navigate('create-user')" />
         <CreateUserPage v-else-if="currentPage === 'create-user'" @back="navigate('users')" />
         <DocumentsPage v-else-if="currentPage === 'documents'" />
