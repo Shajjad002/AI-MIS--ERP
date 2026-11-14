@@ -1,0 +1,13 @@
+.git
+.vs
+**/bin
+**/obj
+**/node_modules
+**/TestResults
+.env
+.env.*
+*.user
+*.suo
+**/appsettings.Development.json
+backend/AI.MIS.Api/App_Data/**
+*.log

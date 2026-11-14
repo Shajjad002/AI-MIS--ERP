@@ -22,30 +22,60 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<LlmOptions>(configuration.GetSection(LlmOptions.SectionName));
+        services.AddIdentityInfrastructure(configuration);
+        services.AddCopilotInfrastructure(configuration);
+        services.AddKnowledgeInfrastructure(configuration);
+        services.AddReportingInfrastructure(configuration);
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.SectionName));
+        services.AddScoped<IUserRepository, SqlUserRepository>();
+        services.AddScoped<IUserManagementService, SqlUserManagementService>();
+        services.AddScoped<IMenuManagementService, SqlMenuManagementService>();
+        services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
+        return services;
+    }
+
+    public static IServiceCollection AddCopilotInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<LlmOptions>(configuration.GetSection(LlmOptions.SectionName));
+        services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.AddHttpClient<ILlmClient, OpenAiCompatibleLlmClient>(client => client.Timeout = TimeSpan.FromSeconds(30));
-        services.AddHttpClient<IEmbeddingGenerator, OpenAiEmbeddingGenerator>(client => client.Timeout = TimeSpan.FromSeconds(60));
         services.AddSingleton<ISchemaMetadataProvider, InMemorySchemaMetadataProvider>();
         services.AddSingleton<ISqlQueryValidator, SqlQueryValidator>();
         services.AddSingleton<IQueryAuthorizationService, QueryAuthorizationService>();
         services.AddScoped<IReadOnlyQueryExecutor, SqlReadOnlyQueryExecutor>();
         services.AddSingleton<IAuditLogger, LoggingAuditLogger>();
-        services.AddScoped<IUserRepository, SqlUserRepository>();
-        services.AddScoped<IUserManagementService, SqlUserManagementService>();
-        services.AddScoped<IMenuManagementService, SqlMenuManagementService>();
-        services.AddScoped<UserSession>();
-        services.AddScoped<IMISReportService, MISReportService>();
-        services.AddScoped<IDayInformationService, DayInformationService>();
-        services.AddScoped<IProgramService, ProgramService>();
-        services.AddScoped<IExcelImportStore, SqlExcelImportStore>();
-        services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
+        return services;
+    }
+
+    public static IServiceCollection AddKnowledgeInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
+        services.Configure<LlmOptions>(configuration.GetSection(LlmOptions.SectionName));
+        services.AddHttpClient<ILlmClient, OpenAiCompatibleLlmClient>(client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.AddHttpClient<IEmbeddingGenerator, OpenAiEmbeddingGenerator>(client => client.Timeout = TimeSpan.FromSeconds(60));
         services.Configure<RagOptions>(configuration.GetSection(RagOptions.SectionName));
         services.AddSingleton<IDocumentStore, LocalDocumentStore>();
         services.AddSingleton<IDocumentTextExtractor, DocumentTextExtractor>();
         services.AddSingleton<IVectorStore, LocalVectorStore>();
         services.AddScoped<IRagService, RagService>();
+        return services;
+    }
+
+    public static IServiceCollection AddReportingInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
+        services.AddScoped<IMISReportService, MISReportService>();
+        services.AddScoped<IDayInformationService, DayInformationService>();
+        services.AddScoped<IProgramService, ProgramService>();
+        services.AddScoped<IExcelImportStore, SqlExcelImportStore>();
+        services.AddScoped<ILoanProposalService, LoanProposalService>();
+        services.AddScoped<UserSession>();
         return services;
     }
 }
