@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\AI.MIS.Application\AI.MIS.Application.csproj" />
+    <ProjectReference Include="..\AI.MIS.Domain\AI.MIS.Domain.csproj" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\AI.MIS.Api\Controllers\**\*.cs" Link="Controllers\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

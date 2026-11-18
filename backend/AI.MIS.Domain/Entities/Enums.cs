@@ -3,23 +3,23 @@ using System.ComponentModel;
 
 namespace AI.MIS.Domain.Entities;
 
-  public static class OperationPolicies
-  {
-      public static decimal BranchLevelDisbursementRange; // => 500001;
-      public static decimal CashDisbursementRange; // => 99999;
-      public static int LastDisburseDateForGroupLoan; // => 25;
-      public static int LastDisburseDateForIndividualLoan; // => 21;
-      public static decimal BKashCharge; // => 1;
-      public static bool BKashChargeInPercentage; // => true;
-      public static int WillReportLoadFromReportServerDB; // => 1;
-      public static DateTime DuplicatePassbookIssuePermissionDate; // => '2024-01-18';
-      public static string DoubleSavingDuration; // 78;
-      public static string ExcludeMashiKMunafaTenor; // 2311090001;
-  };
+public static class OperationPolicies
+{
+    public static decimal BranchLevelDisbursementRange; // => 500001;
+    public static decimal CashDisbursementRange; // => 99999;
+    public static int LastDisburseDateForGroupLoan; // => 25;
+    public static int LastDisburseDateForIndividualLoan; // => 21;
+    public static decimal BKashCharge; // => 1;
+    public static bool BKashChargeInPercentage; // => true;
+    public static int WillReportLoadFromReportServerDB; // => 1;
+    public static DateTime DuplicatePassbookIssuePermissionDate; // => '2024-01-18';
+    public static string DoubleSavingDuration; // 78;
+    public static string ExcludeMashiKMunafaTenor; // 2311090001;
+};
 public class Enums
 {
 
-    
+
 
 }
 public class ProgramList
@@ -50,45 +50,56 @@ public enum MemberStatus
     [Description("Blacklisted")] Blacklisted,
     [Description("Pending")] Pending,
 }
-   public enum MemberTransferStatus
-   {
-       [Description("Transfer In")] TransferIn,
-       [Description("Transfer Out")] TransferOut,
-   }
+public enum MemberTransferStatus
+{
+    [Description("Transfer In")] TransferIn,
+    [Description("Transfer Out")] TransferOut,
+}
 
-   public enum LoanProposalStatus
-   {
-       [Description("Initial")]
-       Initial,
-       [Description("Pending")]
-       Pending,
-       [Description("Recommended")]
-       Recommended,
-       [Description("Approved")]
-       Approved,
-       [Description("Rejected")]
-       Rejected,
-       [Description("Open")]
-       AccountOpened,
-       [Description("Closed")]
-       Closed,
-       [Description("Disbursed")]
-       Disbursed,
-       [Description("Expired")]
-       Expired
-   };
+public enum LoanProposalStatus
+{
+    [Description("Initial")]
+    Initial,
+    [Description("Pending")]
+    Pending,
+    [Description("Recommended")]
+    Recommended,
+    [Description("Approved")]
+    Approved,
+    [Description("Rejected")]
+    Rejected,
+    [Description("Open")]
+    AccountOpened,
+    [Description("Closed")]
+    Closed,
+    [Description("Disbursed")]
+    Disbursed,
+    [Description("Expired")]
+    Expired
+};
 
-   public enum DepositProposalStatus
-   {
-       [Description("Pending")]
-       Pending,
-       [Description("Rejected")]
-       Rejected,
-       [Description("Open")]
-       AccountOpened,
-       [Description("Closed")]
-       Closed,
-       [Description("Settled")]
-       Settled
+public enum DepositProposalStatus
+{
+    [Description("Pending")]
+    Pending,
+    [Description("Rejected")]
+    Rejected,
+    [Description("Open")]
+    AccountOpened,
+    [Description("Closed")]
+    Closed,
+    [Description("Settled")]
+    Settled
 
-   };
+};
+public static class MicrocreditWorkStationType
+{
+    public static string Program => "PO";
+    public static string Department => "DE";
+    public static string Zone => "ZO";
+    public static string Region => "RE";
+    public static string Area => "AR";
+    public static string Branch => "BR";
+    public static string Division => "DV";
+    public static string Virtual => "VW";
+}

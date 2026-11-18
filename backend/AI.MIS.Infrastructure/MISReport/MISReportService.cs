@@ -24,9 +24,7 @@ public class MISReportService : IMISReportService
         _options = options;
     }
 
-    public async Task<BaseResponse> GetBranchPortfolioReport(
-        ReportParameterViewModel viewModel,
-        CancellationToken cancellationToken = default)
+    public async Task<BaseResponse> GetBranchPortfolioReport( ReportParameterViewModel viewModel,CancellationToken cancellationToken = default)
     {
         BaseResponse response = new BaseResponse();
         var branchProtfoliosDataList = await GetBranchPortfolioReportData(viewModel, cancellationToken);
@@ -209,9 +207,7 @@ public class MISReportService : IMISReportService
         return response;
     }
 
-    public async Task<decimal> GetTotalDisbursement(
-        ReportParameterViewModel viewModel,
-        CancellationToken cancellationToken = default)
+    public async Task<decimal> GetTotalDisbursement(ReportParameterViewModel viewModel, CancellationToken cancellationToken = default)
     {
         var connectionString = _options.Value.MISDbConnection;
         if (string.IsNullOrWhiteSpace(connectionString))
@@ -236,9 +232,7 @@ public class MISReportService : IMISReportService
         return totalDisbursement;
     }
 
-    private async Task<DashboardDataSP> GetBranchPortfolioReportData(
-        ReportParameterViewModel viewModel,
-        CancellationToken cancellationToken)
+    private async Task<DashboardDataSP> GetBranchPortfolioReportData(ReportParameterViewModel viewModel,CancellationToken cancellationToken)
     {
         var connectionString = _options.Value.MISDbConnection;
         if (string.IsNullOrWhiteSpace(connectionString))
@@ -282,9 +276,7 @@ public class MISReportService : IMISReportService
         return command;
     }
 
-    private static async Task<List<T>> MapReaderAsync<T>(
-        SqlDataReader reader,
-        CancellationToken cancellationToken) where T : new()
+    private static async Task<List<T>> MapReaderAsync<T>(SqlDataReader reader,CancellationToken cancellationToken) where T : new()
     {
         var columnOrdinals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         for (var ordinal = 0; ordinal < reader.FieldCount; ordinal++)

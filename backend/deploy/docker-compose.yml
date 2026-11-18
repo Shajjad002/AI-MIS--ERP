@@ -1,0 +1,91 @@
+x-service-environment: &service_environment
+  ASPNETCORE_URLS: http://+:8080
+  Authentication__Issuer: ${AUTHENTICATION_ISSUER:-AI.MIS.Copilot}
+  Authentication__Audience: ${AUTHENTICATION_AUDIENCE:-AI.MIS.Users}
+  Authentication__SigningKey: ${AUTHENTICATION_SIGNING_KEY:?Set AUTHENTICATION_SIGNING_KEY to a random key of at least 32 characters}
+  Cors__AllowedOrigins__0: ${WEB_ORIGIN:-http://localhost:5173}
+
+services:
+  gateway:
+    build:
+      context: ../..
+      dockerfile: backend/deploy/Dockerfile.service
+      args:
+        PROJECT: backend/AI.MIS.Gateway/AI.MIS.Gateway.csproj
+        ASSEMBLY: AI.MIS.Gateway
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      Authentication__Issuer: ${AUTHENTICATION_ISSUER:-AI.MIS.Copilot}
+      Authentication__Audience: ${AUTHENTICATION_AUDIENCE:-AI.MIS.Users}
+      Authentication__SigningKey: ${AUTHENTICATION_SIGNING_KEY:?Set AUTHENTICATION_SIGNING_KEY to a random key of at least 32 characters}
+      Cors__AllowedOrigins__0: ${WEB_ORIGIN:-http://localhost:5173}
+      ReverseProxy__Clusters__identity__Destinations__primary__Address: http://identity:8080/
+      ReverseProxy__Clusters__copilot__Destinations__primary__Address: http://copilot:8080/
+      ReverseProxy__Clusters__knowledge__Destinations__primary__Address: http://knowledge:8080/
+      ReverseProxy__Clusters__reporting__Destinations__primary__Address: http://reporting:8080/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - identity
+      - copilot
+      - knowledge
+      - reporting
+
+  identity:
+    build:
+      context: ../..
+      dockerfile: backend/deploy/Dockerfile.service
+      args:
+        PROJECT: backend/AI.MIS.IdentityService/AI.MIS.IdentityService.csproj
+        ASSEMBLY: AI.MIS.IdentityService
+    environment:
+      <<: *service_environment
+      ConnectionStrings__ApplicationDatabase: ${APPLICATION_DATABASE_CONNECTION_STRING:?Set APPLICATION_DATABASE_CONNECTION_STRING}
+
+  copilot:
+    build:
+      context: ../..
+      dockerfile: backend/deploy/Dockerfile.service
+      args:
+        PROJECT: backend/AI.MIS.CopilotService/AI.MIS.CopilotService.csproj
+        ASSEMBLY: AI.MIS.CopilotService
+    environment:
+      <<: *service_environment
+      ConnectionStrings__ErpReadOnlyDatabase: ${ERP_READ_ONLY_DATABASE_CONNECTION_STRING:?Set ERP_READ_ONLY_DATABASE_CONNECTION_STRING}
+      Llm__Endpoint: ${LLM_ENDPOINT:?Set LLM_ENDPOINT}
+      Llm__ApiKey: ${LLM_API_KEY:?Set LLM_API_KEY}
+      Llm__Model: ${LLM_MODEL:?Set LLM_MODEL}
+
+  knowledge:
+    build:
+      context: ../..
+      dockerfile: backend/deploy/Dockerfile.service
+      args:
+        PROJECT: backend/AI.MIS.KnowledgeService/AI.MIS.KnowledgeService.csproj
+        ASSEMBLY: AI.MIS.KnowledgeService
+    environment:
+      <<: *service_environment
+      Rag__StoragePath: /app/App_Data/documents
+      Rag__EmbeddingsEndpoint: ${EMBEDDINGS_ENDPOINT:?Set EMBEDDINGS_ENDPOINT}
+      Rag__EmbeddingsApiKey: ${EMBEDDINGS_API_KEY:?Set EMBEDDINGS_API_KEY}
+      Rag__EmbeddingsModel: ${EMBEDDINGS_MODEL:?Set EMBEDDINGS_MODEL}
+      Llm__Endpoint: ${LLM_ENDPOINT:?Set LLM_ENDPOINT}
+      Llm__ApiKey: ${LLM_API_KEY:?Set LLM_API_KEY}
+      Llm__Model: ${LLM_MODEL:?Set LLM_MODEL}
+    volumes:
+      - knowledge_documents:/app/App_Data/documents
+
+  reporting:
+    build:
+      context: ../..
+      dockerfile: backend/deploy/Dockerfile.service
+      args:
+        PROJECT: backend/AI.MIS.ReportingService/AI.MIS.ReportingService.csproj
+        ASSEMBLY: AI.MIS.ReportingService
+    environment:
+      <<: *service_environment
+      ConnectionStrings__ApplicationDatabase: ${APPLICATION_DATABASE_CONNECTION_STRING:?Set APPLICATION_DATABASE_CONNECTION_STRING}
+      ConnectionStrings__MISDbConnection: ${MIS_DATABASE_CONNECTION_STRING:?Set MIS_DATABASE_CONNECTION_STRING}
+
+volumes:
+  knowledge_documents:

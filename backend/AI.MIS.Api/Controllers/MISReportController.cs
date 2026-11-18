@@ -28,7 +28,7 @@ public sealed class MISReportController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetDashboardData([FromQuery] DashboardReportQuery query,[FromQuery] bool summaryOnly = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetDashboardData([FromQuery] DashboardReportQuery query, [FromQuery] bool summaryOnly = false, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(query.FromDate) ||
             string.IsNullOrWhiteSpace(query.ToDate) ||
@@ -137,7 +137,6 @@ public sealed class MISReportController : ControllerBase
 
     }
 
-
     public sealed record LoginRequest(string UserName, string Password);
 
     public sealed class DashboardReportQuery
@@ -152,4 +151,5 @@ public sealed class MISReportController : ControllerBase
         public string? BranchCode { get; set; }
         public string? LendingType { get; set; }
     }
+
 }

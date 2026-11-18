@@ -1,6 +1,7 @@
 using AI.MIS.Application.Rag;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AI.MIS.Api.Controllers;

@@ -1,0 +1,101 @@
+.loan-analysis-page { display: grid; gap: 1.15rem; }
+.loan-analysis-heading { align-items: flex-end; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; }
+.loan-analysis-heading .eyebrow { font-size: .68rem; margin: 0 0 .45rem; }
+.loan-analysis-heading h1 { font-size: clamp(1.7rem, 3.2vw, 2.45rem); letter-spacing: -.04em; line-height: 1.12; margin: 0; }
+.loan-analysis-heading .hint { margin: .55rem 0 0; }
+.sample-data-badge { align-items: center; background: var(--ui-primary-soft); border: 1px solid var(--ui-border); border-radius: 999px; color: var(--ui-primary); display: inline-flex; font-size: .76rem; font-weight: 650; gap: .45rem; padding: .5rem .75rem; white-space: nowrap; }
+.sample-data-badge span { background: currentColor; border-radius: 50%; height: 7px; width: 7px; }
+.loan-kpi-grid { display: grid; gap: .9rem; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.loan-kpi-card,
+.loan-analysis-panel { background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 16px; box-shadow: var(--ui-shadow); color: var(--ui-text); }
+.loan-kpi-card { display: grid; gap: .45rem; min-width: 0; padding: 1rem 1.1rem; }
+.loan-kpi-card > span { color: var(--ui-muted); font-size: .78rem; font-weight: 550; }
+.loan-kpi-card > strong { font-size: clamp(1.35rem, 2vw, 1.8rem); letter-spacing: -.035em; line-height: 1.1; overflow-wrap: anywhere; }
+.loan-kpi-card > small { color: var(--ui-muted); font-size: .72rem; }
+.loan-kpi-card .amount-value { font-size: clamp(1.05rem, 1.45vw, 1.4rem); }
+.loan-kpi-card .score-suffix { color: var(--ui-muted); font-size: .8rem; font-weight: 500; }
+.loan-analysis-overview { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); }
+.loan-analysis-panel { min-width: 0; padding: 1.15rem; }
+.loan-panel-heading { align-items: flex-start; display: flex; gap: .8rem; justify-content: space-between; }
+.loan-panel-heading h2 { font-size: 1rem; letter-spacing: -.015em; margin: 0; }
+.loan-panel-heading p { color: var(--ui-muted); font-size: .78rem; line-height: 1.5; margin: .35rem 0 0; }
+.loan-panel-count { background: var(--ui-subtle); border: 1px solid var(--ui-border); border-radius: 999px; color: var(--ui-muted); font-size: .7rem; padding: .35rem .55rem; white-space: nowrap; }
+.proposal-status-list { display: grid; gap: 1rem; margin-top: 1.35rem; }
+.proposal-status-row { display: grid; gap: .5rem; }
+.proposal-status-label { align-items: center; color: var(--ui-text); display: flex; font-size: .8rem; gap: .5rem; }
+.proposal-status-label strong { font-size: .78rem; margin-left: auto; }
+.status-dot { border-radius: 50%; flex: 0 0 9px; height: 9px; }
+.status-dot-approved, .status-bar-approved { background: #24a879; }
+.status-dot-in-review, .status-bar-in-review { background: #4385df; }
+.status-dot-documents-pending, .status-bar-documents-pending { background: #d99827; }
+.status-dot-declined, .status-bar-declined { background: #d85d63; }
+.status-track { background: var(--ui-subtle); border-radius: 999px; box-shadow: inset 2px 2px 4px rgb(76 91 103 / 10%); height: 8px; overflow: hidden; }
+.status-track > span { border-radius: inherit; display: block; height: 100%; min-width: 3px; transition: width .2s ease; }
+.assessment-panel { display: flex; flex-direction: column; }
+.assessment-score { align-items: center; display: flex; gap: .9rem; margin: 1.15rem 0; }
+.assessment-score > strong { align-items: center; background: var(--ui-subtle); border: 1px solid var(--ui-border); border-radius: 50%; box-shadow: inset 4px 4px 8px rgb(76 91 103 / 11%), inset -4px -4px 8px rgb(255 255 255 / 80%); color: var(--ui-primary); display: flex; font-size: 1.65rem; height: 74px; justify-content: center; width: 74px; }
+.assessment-score > span { color: var(--ui-muted); font-size: .79rem; line-height: 1.5; }
+.risk-legend { border-top: 1px solid var(--ui-border); display: grid; gap: .55rem; padding-top: .8rem; }
+.risk-legend > span { align-items: center; color: var(--ui-muted); display: flex; font-size: .76rem; gap: .45rem; }
+.risk-legend i { border-radius: 50%; height: 8px; width: 8px; }
+.risk-legend strong { color: var(--ui-text); font-size: .75rem; margin-left: auto; }
+.risk-low { background: #24a879; }
+.risk-moderate { background: #d99827; }
+.risk-high { background: #d85d63; }
+.assessment-disclaimer { color: var(--ui-muted); font-size: .68rem; line-height: 1.5; margin: auto 0 0; padding-top: .8rem; }
+.proposal-table-panel { padding-bottom: .85rem; }
+.proposal-table-heading { align-items: center; flex-wrap: wrap; margin-bottom: .8rem; }
+.proposal-table-filters { align-items: center; display: flex; flex-wrap: wrap; gap: .6rem; }
+.proposal-table-filters input,
+.proposal-table-filters select { font-size: .76rem; min-height: 38px; padding: .5rem .7rem; }
+.proposal-table-filters input { min-width: min(250px, 55vw); }
+.proposal-table-filters select { min-width: 155px; }
+.loan-table-scroll { max-width: 100%; overflow-x: auto; }
+.loan-proposal-table { border-collapse: collapse; margin: 0; min-width: 800px; text-align: left; width: 100%; }
+.loan-proposal-table th,
+.loan-proposal-table td { border-bottom: 1px solid var(--ui-border); padding: .78rem .7rem; white-space: nowrap; }
+.loan-proposal-table th { color: var(--ui-muted); font-size: .68rem; font-weight: 650; letter-spacing: .035em; text-transform: uppercase; }
+.loan-proposal-table td { color: var(--ui-text); font-size: .77rem; }
+.loan-proposal-table tbody tr:last-child td { border-bottom: 0; }
+.loan-proposal-table .proposal-id { color: var(--ui-primary); font-weight: 650; }
+.risk-score { font-variant-numeric: tabular-nums; font-weight: 700; }
+.risk-score small { color: var(--ui-muted); font-size: .66rem; font-weight: 450; }
+.risk-score-low { color: #16835d; }
+.risk-score-moderate { color: #a76b12; }
+.risk-score-high { color: #c94b55; }
+.risk-score-not-assessed { color: var(--ui-muted); font-weight: 500; }
+.proposal-status-pill { border: 1px solid transparent; border-radius: 999px; display: inline-flex; font-size: .68rem; font-weight: 600; padding: .28rem .55rem; }
+.proposal-status-approved { background: #e8f7ef; border-color: #c5ead4; color: #167347; }
+.proposal-status-in-review { background: #eaf2fe; border-color: #cbdcf8; color: #285d9f; }
+.proposal-status-documents-pending { background: #fff5e5; border-color: #f2dfbd; color: #95600d; }
+.proposal-status-declined { background: #fff0ef; border-color: #f4d0ce; color: #a83e45; }
+.proposal-empty-state { color: var(--ui-muted) !important; padding: 2rem !important; text-align: center; }
+.proposal-table-note { color: var(--ui-muted); font-size: .68rem; line-height: 1.5; margin: .75rem 0 0; }
+.loan-analysis-page .sr-only { clip: rect(0, 0, 0, 0); clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px; }
+
+html[data-theme="dark"] .proposal-status-approved { background: #164e3a; border-color: #226246; color: #9ce5b5; }
+html[data-theme="dark"] .proposal-status-in-review { background: #1c3b64; border-color: #2b5182; color: #b6d2fb; }
+html[data-theme="dark"] .proposal-status-documents-pending { background: #513b19; border-color: #70511e; color: #f5d28f; }
+html[data-theme="dark"] .proposal-status-declined { background: #51272c; border-color: #71343b; color: #f3b4b8; }
+html[data-theme="dark"] .risk-score-moderate { color: #f2c56b; }
+html[data-theme="dark"] .risk-score-low { color: #72d6a1; }
+html[data-theme="dark"] .risk-score-high { color: #f18a91; }
+
+@media (max-width: 1100px) {
+  .loan-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 850px) {
+  .loan-analysis-overview { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .loan-analysis-heading { align-items: flex-start; flex-direction: column; }
+  .loan-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .loan-kpi-card { padding: .85rem; }
+  .loan-analysis-panel { padding: .9rem; }
+  .proposal-table-filters { align-items: stretch; width: 100%; }
+  .proposal-table-filters input,
+  .proposal-table-filters select { min-width: 0; width: 100%; }
+}
+@media (max-width: 380px) {
+  .loan-kpi-grid { grid-template-columns: 1fr; }
+}

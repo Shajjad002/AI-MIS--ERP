@@ -1,6 +1,7 @@
 using AI.MIS.Application.Common;
 using AI.MIS.Api.OpenApi;
 using AI.MIS.Infrastructure;
+using AI.MIS.Api.Controllers;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,7 +10,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddApplicationPart(typeof(CopilotController).Assembly);
 var authentication = builder.Configuration.GetSection("Authentication");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
